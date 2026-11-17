@@ -1,0 +1,7 @@
+.env
+__pycache__/
+*.py[cod]
+docker/minio_data/
+docker/mysql_data/
+docker/redis/*.rdb
+docker/redis/appendonly*

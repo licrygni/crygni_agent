@@ -1,0 +1,50 @@
+services:
+  # ==========================================
+  # MySQL 服务
+  # ==========================================
+  mysql:
+    image: mysql:8.0 # 指定版本，推荐使用成熟稳定的 8.0 系列
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456" # root 初始密码
+      MYSQL_DATABASE: "chenguang" # 默认创建的数据库名称
+      TZ: Asia/Shanghai # 设置时区为东八区
+    command: # 设置服务端默认字符集与排序规则为 UTF-8 (utf8mb4)
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306" # 映射宿主机 3306 端口
+    volumes:
+      - ./mysql_data:/var/lib/mysql # 挂载当前目录下的 mysql_data 目录
+
+  # ==========================================
+  # Redis 服务
+  # ==========================================
+  redis:
+    image: redis:7.2 # 指定 Redis 稳定版
+    container_name: redis
+    restart: always
+    command: redis-server --appendonly yes # 开启 AOF 持久化，确保数据真正落地到硬盘
+    ports:
+      - "6379:6379" # 映射宿主机默认 6379 端口
+    volumes:
+      - ./redis:/data # 挂载数据到当前目录下的 redis 目录
+
+  # ==========================================
+  # MinIO 对象存储服务 (使用社区无缝平替镜像)
+  # ==========================================
+  minio:
+    image: pgsty/silo:latest # <--- 修改这里即可
+    container_name: minio
+    restart: always
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+      TZ: Asia/Shanghai
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./minio_data:/data
