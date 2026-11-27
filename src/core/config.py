@@ -2,6 +2,7 @@ from functools import lru_cache
 from pathlib import Path
 from urllib.parse import quote_plus
 
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # ========================================
@@ -25,6 +26,7 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     APP_DEBUG: bool = True
     APP_PORT: int = 8000
+    JWT_SECRET_KEY: SecretStr = SecretStr("")
 
     # ====================================
     # MySQL 数据库配置
@@ -51,7 +53,7 @@ class Settings(BaseSettings):
     # Redis 配置
     # ====================================
 
-    REDIS_HOST: str = "127.0.0.1"
+    REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: str = ""
     REDIS_DB: int = 0

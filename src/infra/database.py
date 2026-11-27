@@ -1,6 +1,5 @@
 
-from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError
+from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -10,17 +9,7 @@ from sqlalchemy.ext.asyncio import (
 from src.core.config import settings
 from src.core.logger import setup_logger
 
-
-# ========================================
-# 日志
-# ========================================
-
 logger = setup_logger()
-
-
-# ========================================
-# 创建异步数据库引擎
-# ========================================
 
 engine = create_async_engine(
     url=settings.SQLALCHEMY_DATABASE_URI,
@@ -36,11 +25,6 @@ engine = create_async_engine(
     echo=settings.DB_ECHO,
 )
 
-
-# ========================================
-# 创建异步 Session 工厂
-# ========================================
-
 SessionLocal = async_sessionmaker(
     bind=engine,
     class_=AsyncSession,
@@ -48,42 +32,11 @@ SessionLocal = async_sessionmaker(
     expire_on_commit=False,
 )
 
-
-# ========================================
-# 数据库连接检查
-# ========================================
-
-async def check_db_connection() -> bool:
-    """
-    检查 MySQL 数据库连接是否正常。
-    """
-
-    try:
-
-        async with engine.connect() as connection:
-
-            await connection.execute(text("SELECT 1"))
-
-        logger.info("MySQL 数据库连接成功")
-
-        return True
-
-    except SQLAlchemyError:
-
-        logger.exception("MySQL 数据库连接失败")
-
-        raise
-
-
-# ========================================
-# 释放数据库连接池
-# ========================================
-
-async def dispose_db_engine() -> None:
-    """
-    释放数据库连接池资源。
-    """
-
-    await engine.dispose()
-
-    logger.info("MySQL 数据库连接池已释放")
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    async with SessionLocal() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise

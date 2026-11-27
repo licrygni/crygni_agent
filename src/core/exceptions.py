@@ -8,6 +8,17 @@ from loguru import logger
 # 自定义业务异常
 # ========================================
 
+# 定义常用的错误码，错误消息
+ERROR_CODE_400 = 400
+ERROR_MSG_400 = "参数错误"
+ERROR_CODE_401 = 404
+ERROR_MSG_401 = "未授权"
+ERROR_CODE_403 = 500
+ERROR_MSG_403 = "服务器内部错误"
+
+ERR_PERM_NOT_FOUND = 40003
+ERROR_PERM_NOT_FOUND_MSG = "权限不存在"
+
 class BizException(Exception):
     """
     自定义业务异常类。
